@@ -37,6 +37,14 @@ const translations = {
     goalAmount: "目標金額",
     totalInvested: "累計投資額",
     nisaUsed: "NISA 使用額",
+    rakutenInvestments: "楽天投資商品",
+    rakutenTitle: "楽天関連商品",
+    highDividendTitle: "高配当株式",
+    japanFundTitle: "日本ファンド",
+    currentPrice: "現在価格",
+    changePercent: "変動率",
+    investedAmount: "投資額",
+    expectedYield: "予想利回り",
     footer: "※ 本アプリは投資助言を行うものではありません。自己責任での運用をお願いします。",
     status: {
       normal: {
@@ -74,6 +82,14 @@ const translations = {
     goalAmount: "목표 금액",
     totalInvested: "누적 투자액",
     nisaUsed: "NISA 사용액",
+    rakutenInvestments: "Rakuten 투자 상품",
+    rakutenTitle: "Rakuten 관련 상품",
+    highDividendTitle: "고배당 주식",
+    japanFundTitle: "일본 펀드",
+    currentPrice: "현재 가격",
+    changePercent: "변동률",
+    investedAmount: "투자 금액",
+    expectedYield: "예상 수익률",
     footer: "※ 본 앱은 투자 조언을 제공하지 않습니다. 본인 책임으로 운용하세요.",
     status: {
       normal: {
@@ -111,6 +127,14 @@ const translations = {
     goalAmount: "Target Amount",
     totalInvested: "Total Invested",
     nisaUsed: "NISA Used",
+    rakutenInvestments: "Rakuten Investments",
+    rakutenTitle: "Rakuten Products",
+    highDividendTitle: "High Dividend Stocks",
+    japanFundTitle: "Japan Funds",
+    currentPrice: "Current Price",
+    changePercent: "Change %",
+    investedAmount: "Invested Amount",
+    expectedYield: "Expected Yield",
     footer: "※ This app does not provide investment advice. Invest at your own risk.",
     status: {
       normal: {
@@ -142,6 +166,24 @@ export default function InvestmentDashboard() {
     targetAmountJPY: 100000000, // 목표: 1억엔
     annualNisaUsed: 1200000,    // 올해 NISA 사용액
     lastUpdate: new Date(),
+    // 새로운 투자 상품들
+    rakutenProducts: {
+      invested: 2000000, // 투자 금액
+      currentValue: 2100000, // 현재 가치
+      changePercent: 5.0, // 변동률
+    },
+    highDividendStocks: {
+      invested: 1500000,
+      currentValue: 1480000,
+      changePercent: -1.3,
+      expectedYield: 4.2, // 예상 배당률
+    },
+    japanFunds: {
+      invested: 3000000,
+      currentValue: 3150000,
+      changePercent: 5.0,
+      expectedYield: 3.8,
+    },
   });
   const [locale, setLocale] = useState<Locale>("ja");
 
@@ -185,12 +227,12 @@ export default function InvestmentDashboard() {
   }, []);
 
   useEffect(() => {
-    const { totalInvestedJPY, targetAmountJPY, annualNisaUsed, jpyUsd } = data;
+    const { totalInvestedJPY, targetAmountJPY, annualNisaUsed, jpyUsd, rakutenProducts, highDividendStocks, japanFunds } = data;
     window.localStorage.setItem(
       DATA_STORAGE_KEY,
-      JSON.stringify({ totalInvestedJPY, targetAmountJPY, annualNisaUsed, jpyUsd })
+      JSON.stringify({ totalInvestedJPY, targetAmountJPY, annualNisaUsed, jpyUsd, rakutenProducts, highDividendStocks, japanFunds })
     );
-  }, [data.totalInvestedJPY, data.targetAmountJPY, data.annualNisaUsed, data.jpyUsd]);
+  }, [data.totalInvestedJPY, data.targetAmountJPY, data.annualNisaUsed, data.jpyUsd, data.rakutenProducts, data.highDividendStocks, data.japanFunds]);
 
   useEffect(() => {
     window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
@@ -200,10 +242,29 @@ export default function InvestmentDashboard() {
   useEffect(() => {
     const interval = setInterval(() => {
       setData((prev) => {
-        const change = (Math.random() - 0.5) * 15;
+        const spChange = (Math.random() - 0.5) * 15;
+        const rakutenChange = (Math.random() - 0.5) * 8;
+        const highDividendChange = (Math.random() - 0.5) * 6;
+        const japanFundChange = (Math.random() - 0.5) * 7;
+
         return {
           ...prev,
-          currentSP500: parseFloat((prev.currentSP500 + change).toFixed(2)),
+          currentSP500: parseFloat((prev.currentSP500 + spChange).toFixed(2)),
+          rakutenProducts: {
+            ...prev.rakutenProducts,
+            currentValue: parseFloat((prev.rakutenProducts.currentValue + rakutenChange * 1000).toFixed(0)),
+            changePercent: parseFloat((((prev.rakutenProducts.currentValue + rakutenChange * 1000) / prev.rakutenProducts.invested - 1) * 100).toFixed(1)),
+          },
+          highDividendStocks: {
+            ...prev.highDividendStocks,
+            currentValue: parseFloat((prev.highDividendStocks.currentValue + highDividendChange * 800).toFixed(0)),
+            changePercent: parseFloat((((prev.highDividendStocks.currentValue + highDividendChange * 800) / prev.highDividendStocks.invested - 1) * 100).toFixed(1)),
+          },
+          japanFunds: {
+            ...prev.japanFunds,
+            currentValue: parseFloat((prev.japanFunds.currentValue + japanFundChange * 1200).toFixed(0)),
+            changePercent: parseFloat((((prev.japanFunds.currentValue + japanFundChange * 1200) / prev.japanFunds.invested - 1) * 100).toFixed(1)),
+          },
           lastUpdate: new Date(),
         };
       });
@@ -297,6 +358,54 @@ export default function InvestmentDashboard() {
             />
           </div>
           <p className="mt-2 text-[10px] text-slate-400 text-right">{t.yearlyLimit}</p>
+        </section>
+
+        {/* Rakuten 투자 상품 섹션 */}
+        <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+          <h3 className="font-bold text-slate-800 mb-6">{t.rakutenInvestments}</h3>
+          <div className="space-y-4">
+            {/* Rakuten 상품 */}
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+              <div>
+                <p className="font-semibold text-slate-800">{t.rakutenTitle}</p>
+                <p className="text-sm text-slate-500">{t.investedAmount}: ¥{data.rakutenProducts.invested.toLocaleString(localeMap[locale])}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-slate-900">¥{data.rakutenProducts.currentValue.toLocaleString(localeMap[locale])}</p>
+                <p className={`text-sm font-semibold ${data.rakutenProducts.changePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {data.rakutenProducts.changePercent >= 0 ? '+' : ''}{data.rakutenProducts.changePercent.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+
+            {/* 고배당 주식 */}
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+              <div>
+                <p className="font-semibold text-slate-800">{t.highDividendTitle}</p>
+                <p className="text-sm text-slate-500">{t.expectedYield}: {data.highDividendStocks.expectedYield}%</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-slate-900">¥{data.highDividendStocks.currentValue.toLocaleString(localeMap[locale])}</p>
+                <p className={`text-sm font-semibold ${data.highDividendStocks.changePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {data.highDividendStocks.changePercent >= 0 ? '+' : ''}{data.highDividendStocks.changePercent.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+
+            {/* 일본 펀드 */}
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+              <div>
+                <p className="font-semibold text-slate-800">{t.japanFundTitle}</p>
+                <p className="text-sm text-slate-500">{t.expectedYield}: {data.japanFunds.expectedYield}%</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-slate-900">¥{data.japanFunds.currentValue.toLocaleString(localeMap[locale])}</p>
+                <p className={`text-sm font-semibold ${data.japanFunds.changePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {data.japanFunds.changePercent >= 0 ? '+' : ''}{data.japanFunds.changePercent.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
