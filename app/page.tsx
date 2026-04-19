@@ -26,8 +26,8 @@ export default function InvestmentDashboard() {
         color: "text-emerald-600",
         bg: "bg-emerald-50",
         border: "border-emerald-200",
-        message: "市場は堅조입니다",
-        detail: "積立を継続し、静観しましょう。",
+        message: "正常範囲です",
+        detail: "特に何もしなくて問題ありません",
       };
     } else if (dropRate > -15) {
       return {
@@ -36,7 +36,7 @@ export default function InvestmentDashboard() {
         bg: "bg-amber-50",
         border: "border-amber-200",
         message: "押し目買いの検討",
-        detail: "少しずつ追加購入を検討해도 좋습니다.",
+        detail: "少しずつ追加購入を検討してください。",
       };
     } else {
       return {
