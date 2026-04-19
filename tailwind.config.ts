@@ -1,8 +1,7 @@
-import type { Config } from "tailwindcss";
-
-const config: Config = {
+/** @type {import('tailwindcss').Config} */
+const config = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx,mdx}", // app 폴더 안의 모든 파일을 감시
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
@@ -11,4 +10,4 @@ const config: Config = {
   },
   plugins: [],
 };
-export default config;
+module.exports = config;
