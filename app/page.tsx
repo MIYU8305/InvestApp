@@ -51,6 +51,30 @@ export default function InvestmentDashboard() {
   };
 
   const status = getStatus();
+  const STORAGE_KEY = "invest-dashboard-user";
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setData((prev) => ({
+          ...prev,
+          ...parsed,
+        }));
+      } catch (error) {
+        console.error("localStorage parse error", error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const { totalInvestedJPY, targetAmountJPY, annualNisaUsed, jpyUsd } = data;
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ totalInvestedJPY, targetAmountJPY, annualNisaUsed, jpyUsd })
+    );
+  }, [data.totalInvestedJPY, data.targetAmountJPY, data.annualNisaUsed, data.jpyUsd]);
 
   // 실시간 시뮬레이션 (실제 구현시 API 연동 권장)
   useEffect(() => {
@@ -135,6 +159,57 @@ export default function InvestmentDashboard() {
             />
           </div>
           <p className="mt-2 text-[10px] text-slate-400 text-right">年間上限 ¥3,600,000</p>
+        </section>
+
+        <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+          <div className="mb-4">
+            <h3 className="font-bold text-slate-800">ユーザー設定</h3>
+            <p className="text-sm text-slate-500">設定は自動でローカル保存されます。</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            <label className="space-y-2 text-sm text-slate-600">
+              <span>目標金額</span>
+              <input
+                type="number"
+                value={data.targetAmountJPY}
+                onChange={(e) =>
+                  setData((prev) => ({
+                    ...prev,
+                    targetAmountJPY: Number(e.target.value),
+                  }))
+                }
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-900"
+              />
+            </label>
+            <label className="space-y-2 text-sm text-slate-600">
+              <span>累計投資額</span>
+              <input
+                type="number"
+                value={data.totalInvestedJPY}
+                onChange={(e) =>
+                  setData((prev) => ({
+                    ...prev,
+                    totalInvestedJPY: Number(e.target.value),
+                  }))
+                }
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-900"
+              />
+            </label>
+            <label className="space-y-2 text-sm text-slate-600">
+              <span>NISA 使用額</span>
+              <input
+                type="number"
+                value={data.annualNisaUsed}
+                onChange={(e) =>
+                  setData((prev) => ({
+                    ...prev,
+                    annualNisaUsed: Number(e.target.value),
+                  }))
+                }
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-900"
+              />
+            </label>
+          </div>
         </section>
 
         <footer className="text-center text-[10px] text-slate-400">
