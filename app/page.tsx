@@ -360,49 +360,67 @@ export default function InvestmentDashboard() {
           <p className="mt-2 text-[10px] text-slate-400 text-right">{t.yearlyLimit}</p>
         </section>
 
-        {/* Rakuten 투자 상품 섹션 */}
+        {/* Rakuten 투자 상품 포트폴리오 */}
         <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-          <h3 className="font-bold text-slate-800 mb-6">{t.rakutenInvestments}</h3>
+          <h3 className="font-bold text-slate-800 mb-6">{t.rakutenTitle}</h3>
           <div className="space-y-4">
-            {/* Rakuten 상품 */}
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-              <div>
-                <p className="font-semibold text-slate-800">{t.rakutenTitle}</p>
-                <p className="text-sm text-slate-500">{t.investedAmount}: ¥{data.rakutenProducts.invested.toLocaleString(localeMap[locale])}</p>
+            {/* Rakuten 상품들 */}
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* 楽天・高配当株式・日本ファンド */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-sm font-bold text-slate-700">{t.highDividendTitle}</p>
+                    <p className="text-xs text-slate-500">9I312252</p>
+                  </div>
+                  <span className={`text-sm font-bold ${data.highDividendStocks.changePercent >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                    {data.highDividendStocks.changePercent >= 0 ? "+" : ""}{data.highDividendStocks.changePercent.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-lg font-bold text-slate-900">¥{data.highDividendStocks.currentValue.toLocaleString(localeMap[locale])}</p>
+                  <p className="text-xs text-slate-500">{t.investedAmount}: ¥{data.highDividendStocks.invested.toLocaleString(localeMap[locale])}</p>
+                  <p className="text-xs text-slate-500">{t.expectedYield}: {data.highDividendStocks.expectedYield}%</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="font-bold text-slate-900">¥{data.rakutenProducts.currentValue.toLocaleString(localeMap[locale])}</p>
-                <p className={`text-sm font-semibold ${data.rakutenProducts.changePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {data.rakutenProducts.changePercent >= 0 ? '+' : ''}{data.rakutenProducts.changePercent.toFixed(1)}%
-                </p>
-              </div>
-            </div>
 
-            {/* 고배당 주식 */}
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-              <div>
-                <p className="font-semibold text-slate-800">{t.highDividendTitle}</p>
-                <p className="text-sm text-slate-500">{t.expectedYield}: {data.highDividendStocks.expectedYield}%</p>
+              {/* 다른 Rakuten 상품들 (예시) */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-sm font-bold text-slate-700">{t.japanFundTitle}</p>
+                    <p className="text-xs text-slate-500">四半期決算型</p>
+                  </div>
+                  <span className={`text-sm font-bold ${data.japanFunds.changePercent >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                    {data.japanFunds.changePercent >= 0 ? "+" : ""}{data.japanFunds.changePercent.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-lg font-bold text-slate-900">¥{data.japanFunds.currentValue.toLocaleString(localeMap[locale])}</p>
+                  <p className="text-xs text-slate-500">{t.investedAmount}: ¥{data.japanFunds.invested.toLocaleString(localeMap[locale])}</p>
+                  <p className="text-xs text-slate-500">{t.expectedYield}: {data.japanFunds.expectedYield}%</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="font-bold text-slate-900">¥{data.highDividendStocks.currentValue.toLocaleString(localeMap[locale])}</p>
-                <p className={`text-sm font-semibold ${data.highDividendStocks.changePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {data.highDividendStocks.changePercent >= 0 ? '+' : ''}{data.highDividendStocks.changePercent.toFixed(1)}%
-                </p>
-              </div>
-            </div>
 
-            {/* 일본 펀드 */}
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-              <div>
-                <p className="font-semibold text-slate-800">{t.japanFundTitle}</p>
-                <p className="text-sm text-slate-500">{t.expectedYield}: {data.japanFunds.expectedYield}%</p>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-slate-900">¥{data.japanFunds.currentValue.toLocaleString(localeMap[locale])}</p>
-                <p className={`text-sm font-semibold ${data.japanFunds.changePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {data.japanFunds.changePercent >= 0 ? '+' : ''}{data.japanFunds.changePercent.toFixed(1)}%
-                </p>
+              {/* 총계 */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-sm font-bold text-slate-700">{t.rakutenInvestments}</p>
+                    <p className="text-xs text-slate-500">総資産</p>
+                  </div>
+                  <span className="text-sm font-bold text-blue-600">
+                    +{((data.rakutenProducts.currentValue + data.highDividendStocks.currentValue + data.japanFunds.currentValue) / (data.rakutenProducts.invested + data.highDividendStocks.invested + data.japanFunds.invested) * 100 - 100).toFixed(1)}%
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-lg font-bold text-slate-900">
+                    ¥{(data.rakutenProducts.currentValue + data.highDividendStocks.currentValue + data.japanFunds.currentValue).toLocaleString(localeMap[locale])}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {t.investedAmount}: ¥{(data.rakutenProducts.invested + data.highDividendStocks.invested + data.japanFunds.invested).toLocaleString(localeMap[locale])}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
