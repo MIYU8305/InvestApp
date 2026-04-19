@@ -4,126 +4,142 @@ import React, { useState, useEffect } from "react";
 
 export default function InvestmentDashboard() {
   const [data, setData] = useState({
-    currentSP500: 4850.25,
-    athSP500: 4850.25,
+    currentSP500: 7120.50, // 2026년 가상 현재가
+    athSP500: 7200.00,    // 전고점
+    jpyUsd: 158.45,       // 현재 환율
+    totalInvestedJPY: 15000000, // 누적 투자액 (예시: 1500만엔)
+    targetAmountJPY: 100000000, // 목표: 1억엔
+    annualNisaUsed: 1200000,    // 올해 NISA 사용액
     lastUpdate: new Date(),
   });
 
+  // 계산 로직
   const dropRate = ((data.currentSP500 - data.athSP500) / data.athSP500) * 100;
-  const nextThreshold = dropRate > -30 ? -30 : -40;
-  const remainingDrop = nextThreshold - dropRate;
-  const remainingPoints = (data.athSP500 * remainingDrop) / 100;
-  const progressPercent = Math.min(100, Math.max(0, (Math.abs(dropRate) / Math.abs(nextThreshold)) * 100));
+  const progressToGoal = (data.totalInvestedJPY / data.targetAmountJPY) * 100;
+  const nisaLimit = 3600000; // 신NISA 연간 한도
+  const nisaProgress = (data.annualNisaUsed / nisaLimit) * 100;
 
   const getStatus = () => {
-    if (dropRate > -30) {
+    if (dropRate > -5) {
       return {
-        icon: "正常",
+        label: "正常",
         color: "text-emerald-600",
         bg: "bg-emerald-50",
         border: "border-emerald-200",
-        message: "正常範囲です",
-        detail: "何もしなくても問題ありません。",
+        message: "市場は堅조입니다",
+        detail: "積立を継続し、静観しましょう。",
       };
-    } else if (dropRate >= -40 && dropRate <= -30) {
+    } else if (dropRate > -15) {
       return {
-        icon: "注意",
+        label: "調整",
         color: "text-amber-600",
         bg: "bg-amber-50",
         border: "border-amber-200",
-        message: "第1次買付けゾーンです",
-        detail: "現在の価格は目標に近いです。",
+        message: "押し目買いの検討",
+        detail: "少しずつ追加購入を検討해도 좋습니다.",
       };
     } else {
       return {
-        icon: "購入完了",
+        label: "絶好機",
         color: "text-red-600",
         bg: "bg-red-50",
         border: "border-red-200",
-        message: "第2次買付けゾーンです",
-        detail: "追加購入計画を確認してください。",
+        message: "積極的買付けゾーン",
+        detail: "キャッシュポジションを確認してください。",
       };
     }
   };
 
   const status = getStatus();
 
+  // 실시간 시뮬레이션 (실제 구현시 API 연동 권장)
   useEffect(() => {
     const interval = setInterval(() => {
       setData((prev) => {
-        const change = (Math.random() - 0.5) * 100;
-        const newValue = Math.max(
-          2900,
-          Math.min(4850.25, prev.currentSP500 + change)
-        );
+        const change = (Math.random() - 0.5) * 15;
         return {
           ...prev,
-          currentSP500: parseFloat(newValue.toFixed(2)),
+          currentSP500: parseFloat((prev.currentSP500 + change).toFixed(2)),
           lastUpdate: new Date(),
         };
       });
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl space-y-8">
-        <header className="text-center">
-          <p className="text-sm text-slate-500">最終更新: {data.lastUpdate.toLocaleTimeString("ja-JP")}</p>
-          <h1 className="mt-3 text-3xl sm:text-4xl font-semibold text-slate-900 tracking-tight">
-            長期投資ダッシュボード
-          </h1>
+    <div className="min-h-screen bg-slate-50 py-10 px-4">
+      <div className="mx-auto max-w-4xl space-y-6">
+        {/* 헤더 */}
+        <header className="flex justify-between items-end">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">資産形成ダッシュボード</h1>
+            <p className="text-sm text-slate-500 font-mono">USD/JPY: ¥{data.jpyUsd}</p>
+          </div>
+          <p className="text-xs text-slate-400">更新: {data.lastUpdate.toLocaleTimeString("ja-JP")}</p>
         </header>
 
-        <section className={`rounded-[2rem] border ${status.border} ${status.bg} p-8 shadow-[0_30px_80px_-40px_rgba(16,185,129,0.45)]`}>
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 via-emerald-200 to-emerald-400 shadow-[0_20px_40px_-20px_rgba(16,185,129,0.35)]">
-            <span className="text-lg font-semibold text-slate-900">{status.icon}</span>
+        {/* 메인 상태 알림 */}
+        <section className={`rounded-3xl border ${status.border} ${status.bg} p-6 shadow-sm transition-all`}>
+          <div className="flex items-center gap-4">
+            <div className={`px-4 py-1 rounded-full text-sm font-bold bg-white border ${status.border} ${status.color}`}>
+              {status.label}
+            </div>
+            <h2 className={`text-xl font-bold ${status.color}`}>{status.message}</h2>
           </div>
-          <h2 className={`text-2xl sm:text-3xl font-bold ${status.color} mb-2`}>{status.message}</h2>
-          <p className="text-base text-slate-600">{status.detail}</p>
+          <p className="mt-2 text-slate-600 text-sm">{status.detail}</p>
         </section>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <article className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-sm">
-            <p className="text-sm uppercase tracking-[0.18em] text-slate-400">S&P 500指数</p>
-            <p className="mt-4 text-4xl sm:text-5xl font-bold text-slate-900">
-              {data.currentSP500.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+        {/* 지수 및 변동률 */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">S&P 500 Index</p>
+            <p className="text-3xl font-bold text-slate-900 mt-2">{data.currentSP500.toLocaleString()}</p>
+          </div>
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">ATHからの下락率</p>
+            <p className={`text-3xl font-bold mt-2 ${dropRate >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+              {dropRate.toFixed(2)}%
             </p>
-          </article>
-
-          <article className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-sm">
-            <p className="text-sm uppercase tracking-[0.18em] text-slate-400">ATHからの変動率</p>
-            <p className={`mt-4 text-4xl sm:text-5xl font-bold ${dropRate >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-              {dropRate >= 0 ? "+" : ""}{dropRate.toFixed(2)}%
-            </p>
-            <p className="mt-3 text-xs text-slate-500">ATH: {data.athSP500.toLocaleString("en-US")}</p>
-          </article>
+          </div>
         </div>
 
-        <section className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.18em] text-slate-400">次の買付けまで（-30%）</p>
-              <p className="mt-4 text-3xl font-bold text-slate-900">{Math.abs(remainingDrop).toFixed(2)}%下落</p>
-            </div>
-            <p className="text-sm text-slate-500">約{Math.abs(remainingPoints).toFixed(0)}ポイント</p>
+        {/* 목표 달성률 (1억엔 프로젝트) */}
+        <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-slate-800">1億円チャレンジ進捗</h3>
+            <span className="text-sm font-bold text-blue-600">{progressToGoal.toFixed(1)}%</span>
           </div>
-
-          <div className="mt-6 rounded-full bg-slate-100 h-3 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
+          <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
+              style={{ width: `${progressToGoal}%` }}
             />
           </div>
+          <div className="flex justify-between mt-2 text-xs text-slate-500 font-mono">
+            <span>累計: ¥{(data.totalInvestedJPY / 10000).toFixed(0)}万</span>
+            <span>目標: ¥10,000万</span>
+          </div>
         </section>
 
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 text-center text-sm text-slate-700">
-          💡 自動でモニタリング中です。行動が必要な場合はお知らせします。
-        </div>
+        {/* NISA 한도 트래커 */}
+        <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-slate-800">新NISA枠 利用状況 (年間)</h3>
+            <span className="text-sm text-slate-500">残枠: ¥{(nisaLimit - data.annualNisaUsed).toLocaleString()}</span>
+          </div>
+          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-emerald-500"
+              style={{ width: `${nisaProgress}%` }}
+            />
+          </div>
+          <p className="mt-2 text-[10px] text-slate-400 text-right">年間上限 ¥3,600,000</p>
+        </section>
+
+        <footer className="text-center text-[10px] text-slate-400">
+          ※ 本アプリは投資助言を行うものではありません。自己責任での運用をお願いします。
+        </footer>
       </div>
     </div>
   );
